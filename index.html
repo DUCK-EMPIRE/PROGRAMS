@@ -64,9 +64,9 @@
         }
 
         .sort-btn {
-            background-color: #2d3b55;
-            color: white;
-            border: 1px solid #445577;
+            background-color: #c0c0c0;
+            color: black;
+            border: 1px solid #000000;
             padding: 10px 20px;
             cursor: pointer;
             border-radius: 20px;
@@ -76,8 +76,8 @@
             background-color: #445577;
         }
         .sort-btn.active {
-            background-color: #9146FF; /* Twitch Purple */
-            border-color: #FFFFFF;
+            background-color: #FFFFFF; /* Twitch Purple */
+            border-color: #000000;
             color: white;
             box-shadow: 0 0 15px rgba(145, 70, 255, 0.6);
             transform: scale(1.05);
@@ -201,7 +201,7 @@
 <h1>DUCK EMPIRE</h1>
 
     <div id="search-container">
-        <input type="text" id="search-bar" placeholder="SEARCH FOR YOUR GAME">
+        <input type="text" id="search-bar" placeholder="SEARCH FOR YOUR PROGRAM">
     </div>
 
     <div id="sort-container">
@@ -276,7 +276,7 @@
             container.innerHTML = '';
             
             if(games.length === 0) {
-                container.innerHTML = '<div class="loading-text">NO GAMES FOUND</div>';
+                container.innerHTML = '<div class="loading-text">NO PROGRAMS FOUND</div>';
                 return;
             }
 
@@ -348,6 +348,7 @@
 </body>
 
 </html>
+
 
 
 
