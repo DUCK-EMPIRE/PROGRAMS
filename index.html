@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DUCK EMPIRE</title>
+    <link rel="icon" type="image/png" href="https://files.catbox.moe/4jdxk7.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Cinzel:wght@400..900&family=Instrument+Serif:ital@0;1&display=block" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #0a0e17;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            font-family: 'Instrument Serif', sans-serif;
+            font-size: 4rem;
+            margin-top: 1px;
+            margin-bottom: 0px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            filter: drop-shadow(0 0 15px rgba(192, 192, 192, 0.5));
+        }
+        #search-container {
+            width: 100%;
+            max-width: 1000px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        #search-bar {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2rem;
+            border-radius: 30px;
+            border: none;
+            outline: none;
+            text-align: center;
+            background-color: #FFFFFF;
+            color: black;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            box-sizing: border-box;
+        }
+        #sort-container {
+            margin: 20px 0;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .sort-btn {
+            background-color: #2d3b55;
+            color: white;
+            border: 1px solid #445577;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 20px;
+            transition: background 0.3s;
+        }
+        .sort-btn:hover {
+            background-color: #445577;
+        }
+        .sort-btn.active {
+            background-color: #9146FF; /* Twitch Purple */
+            border-color: #FFFFFF;
+            color: white;
+            box-shadow: 0 0 15px rgba(145, 70, 255, 0.6);
+            transform: scale(1.05);
+        }
+        #games-container {
+            display: grid;
+            width: 95%;
+            max-width: 1800px;
+            grid-template-columns: repeat(1, 1fr); 
+            gap: 30px;
+            padding: 40px 0;
+            min-height: 300px; 
+        }
+
+        @media (min-width: 600px) {
+            #games-container {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            #games-container {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        .game-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            position: relative; /* Anchor for anything if needed */
+        }
+
+        .game-image-wrapper {
+            width: 100%;
+            aspect-ratio: 1 / 1; 
+            overflow: hidden;
+            border-radius: 20px; 
+            position: relative; /* REQUIRED for absolute positioning of description */
+            
+            border: 2px solid rgba(255, 0, 0, 0.2);
+            box-shadow: 0 0 100px rgba(255,92,0, 0.4);
+            
+            transition: transform 0.15s ease-out;
+            background-color: #000; /* Dark background behind image */
+        }
+
+        .game-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: filter 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* --- DESCRIPTION STYLES --- */
+        .game-description-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* Centers the text perfectly */
+            width: 90%; 
+            text-align: center;
+            
+            color: white;
+            font-family: 'Anton', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 1px;
+            line-height: 1.4;
+            
+            opacity: 0; /* Hidden by default */
+            transition: opacity 0.3s ease;
+            pointer-events: none; /* Let clicks pass through to the link */
+            
+            /* Strong Shadow to make text readable on any background */
+            text-shadow: 0 0 10px rgba(0,0,0,0.9), 0 0 5px black;
+            z-index: 10;
+        }
+
+        .game-title {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* --- HOVER EFFECTS --- */
+        .game-image-wrapper:hover {
+            transform: scale(1.1); 
+        }
+
+        /* Blur the image */
+        .game-image-wrapper:hover .game-image {
+            filter: blur(6px) brightness(0.6); /* Added brightness drop for better text contrast */
+        }
+
+        /* Show the text */
+        .game-image-wrapper:hover .game-description-overlay {
+            opacity: 1;
+        }
+
+        .loading-text {
+            grid-column: 1 / -1; 
+            text-align: center;
+            font-size: 2rem;
+            color: #9146FF;
+            margin-top: 50px;
+            font-family: 'ANTON', sans-serif;
+            letter-spacing: 2px;
+        }
+
+    </style>
+</head>
+<body>
+
+<img src="https://files.catbox.moe/4jdxk7.png" width="350" height="350" style="width: 350px; height: auto; margin-top: 0px; margin-bottom: 0px; border-radius: 10px; filter: drop-shadow(0 0 15px rgba(192, 192, 192, 0.2));" alt="Header Icon">
+
+<h1>DUCK EMPIRE</h1>
+
+    <div id="search-container">
+        <input type="text" id="search-bar" placeholder="SEARCH FOR YOUR GAME">
+    </div>
+
+    <div id="sort-container">
+        <button class="sort-btn active" onclick="sortGames('new', this)">NEW-OLD</button>
+        <button class="sort-btn" onclick="sortGames('az', this)">A-Z</button>
+        <button class="sort-btn" onclick="sortGames('za', this)">Z-A</button>
+        <button class="sort-btn" onclick="sortGames('old', this)">OLD-NEW</button>
+    </div>
+
+    <div id="games-container">
+        <div class="loading-text">LOADING</div>
+    </div>
+
+    <script>
+        // --- 1. CONFIGURATION ---
+        const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQk03et_8xalCdZGTGzPgXrU4puVP98rGINvG238QTJzpuut8Xk4VHDp_4YTWO_a1zmSxdVt2Y5lN8Y/pub?output=csv';
+
+        const container = document.getElementById('games-container');
+        const searchInput = document.getElementById('search-bar');
+        
+        let gamesData = []; 
+        let currentGames = [];
+
+        // --- 2. FETCH DATA FUNCTION ---
+        async function loadGames() {
+            try {
+                const response = await fetch(SHEET_URL);
+                if (!response.ok) throw new Error("Network response was not ok");
+                
+                const data = await response.text();
+                
+                // Parse CSV (Smart Split for Commas in Descriptions)
+                const rows = data.split(/\r?\n/);
+                const tableBody = rows.slice(1);
+
+                gamesData = tableBody.map(row => {
+                    if(row.trim() === '') return null; // Skip empty rows
+
+                    // UPDATED: Regex to split only commas OUTSIDE of quotes
+                    const columns = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    
+                    // Helper to clean quotes from the CSV data
+                    const clean = (text) => text ? text.trim().replace(/^"|"$/g, '').replace(/""/g, '"') : "";
+
+                    if(columns.length < 4) return null;
+
+                    return {
+                        title: clean(columns[0]),
+                        date: clean(columns[1]),
+                        image: clean(columns[2]),
+                        link: clean(columns[3]),
+                        // Fetches 5th column (Index 4) for Description
+                        description: columns[4] ? clean(columns[4]) : "" 
+                    };
+                }).filter(game => game !== null);
+
+                currentGames = [...gamesData];
+                
+                // Default Sort: New to Old
+                currentGames.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                renderGames(currentGames);
+
+            } catch (error) {
+                console.error('Error loading games:', error);
+                container.innerHTML = '<div class="loading-text" style="color:red">ERROR LOADING DATA</div>';
+            }
+        }
+
+        // --- 3. RENDER FUNCTION ---
+        function renderGames(games) {
+            container.innerHTML = '';
+            
+            if(games.length === 0) {
+                container.innerHTML = '<div class="loading-text">NO GAMES FOUND</div>';
+                return;
+            }
+
+            games.forEach(game => {
+                const link = document.createElement('a');
+                link.href = game.link;
+                link.className = 'game-card';
+                link.target = '_blank';
+
+                const imgWrapper = document.createElement('div');
+                imgWrapper.className = 'game-image-wrapper';
+                
+                const img = document.createElement('img');
+                img.src = game.image;
+                img.className = 'game-image';
+                img.alt = game.title;
+                img.onerror = function() { this.src = 'https://via.placeholder.com/512?text=No+Image'; };
+
+                // --- DESCRIPTION LAYER ---
+                const desc = document.createElement('div');
+                desc.className = 'game-description-overlay';
+                // If description is missing, it stays empty so no ugly empty box appears
+                desc.innerText = game.description || ""; 
+
+                const title = document.createElement('div');
+                title.className = 'game-title';
+                title.innerText = game.title;
+
+                imgWrapper.appendChild(img);
+                imgWrapper.appendChild(desc); // Add Description to Wrapper
+                link.appendChild(imgWrapper);
+                link.appendChild(title);
+                container.appendChild(link);
+            });
+        }
+
+        // --- 4. SEARCH FUNCTION ---
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            currentGames = gamesData.filter(game => 
+                game.title.toLowerCase().includes(searchTerm)
+            );
+            renderGames(currentGames);
+        });
+
+        // --- 5. SORT FUNCTION ---
+        function sortGames(type, btn) {
+            if(btn) {
+                document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            if (type === 'az') {
+                currentGames.sort((a, b) => a.title.localeCompare(b.title));
+            } else if (type === 'za') {
+                currentGames.sort((a, b) => b.title.localeCompare(a.title));
+            } else if (type === 'new') {
+                currentGames.sort((a, b) => new Date(b.date) - new Date(a.date));
+            } else if (type === 'old') {
+                currentGames.sort((a, b) => new Date(a.date) - new Date(b.date));
+            }
+            renderGames(currentGames);
+        }
+
+        // --- START ---
+        loadGames();
+
+    </script>
+</body>
+</html>
